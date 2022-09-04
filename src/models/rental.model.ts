@@ -1,0 +1,63 @@
+import { Pool } from 'mysql2/promise';
+import GetRentalResponse from '../interfaces/GetRentalResponse.interface';
+import Rental from '../interfaces/Rental.interface';
+
+export default class RentalModel {
+  public connection: Pool;
+
+  constructor(connection: Pool) {
+    this.connection = connection;
+  }
+
+  private formatRental(response: GetRentalResponse): Rental {
+    return {
+      id: response.id,
+      area: response.area,
+      rooms: response.rooms,
+      bathrooms: response.bathrooms,
+      parking_spaces: response.parking_spaces,
+      floor: response.floor,
+      animal: Boolean(response.animal),
+      furnished: Boolean(response.furnished),
+      hoa: response.hoa,
+      rent: response.rent,
+      tax: response.tax,
+      fireInsurance: response.fire_insurance,
+      address: {
+        id: response.address_id,
+        latitude: response.latitude,
+        longitude: response.longitude,
+        neighborhood: response.neighborhood,
+        zipcode: response.zipcode,
+        street: response.street,
+        streetNumber: response.number,
+        city: response.city_name,
+        state: {
+          long: response.state_name,
+          short: response.short,
+        },
+      },
+    };
+  }
+
+  public async getByPage(page: number): Promise<Rental[]> {
+    const OFFSET = page * 20;
+    const [response] = await this.connection.execute(
+      `
+      SELECT re.*, ad.latitude, ad.longitude, ad.zipcode, ad.street, ad.number, ci.name AS city_name, st.name AS state_name, st.short
+      FROM rental AS re
+      INNER JOIN address AS ad
+      ON re.address_id = ad.id
+      INNER JOIN cities AS ci
+      ON ad.city_id = ci.id
+      INNER JOIN states AS st
+      ON ci.state_id = st.id 
+      ORDER BY re.id
+      LIMIT 20 OFFSET ?
+      `,
+      [OFFSET.toString()]
+    );
+
+    return (response as GetRentalResponse[]).map(this.formatRental);
+  }
+}
