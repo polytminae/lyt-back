@@ -1,5 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
+import rentalRouter from './routes/rental.routes';
 
 class App {
   public app: express.Application = express();
@@ -7,6 +8,8 @@ class App {
   constructor() {
     this.app.use(express.json());
     this.app.use(morgan('dev'));
+
+    this.app.use('/rental', rentalRouter);
   }
 }
 

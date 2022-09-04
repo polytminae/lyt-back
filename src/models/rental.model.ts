@@ -41,7 +41,7 @@ export default class RentalModel {
   }
 
   public async getByPage(page: number): Promise<Rental[]> {
-    const OFFSET = page * 20;
+    const OFFSET = (page - 1) * 20;
     const [response] = await this.connection.execute(
       `
       SELECT re.*, ad.latitude, ad.longitude, ad.zipcode, ad.street, ad.number, ci.name AS city_name, st.name AS state_name, st.short
