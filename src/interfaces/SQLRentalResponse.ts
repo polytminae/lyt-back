@@ -1,4 +1,4 @@
-interface GetRentalResponse {
+interface SQLRentalResponse {
   id: number;
   area: number;
   rooms: number;
@@ -21,6 +21,7 @@ interface GetRentalResponse {
   city_name: string;
   state_name: string;
   short: string;
+  page_count: number;
 }
 
-export default GetRentalResponse;
+export default SQLRentalResponse;

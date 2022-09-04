@@ -12,6 +12,11 @@ export default class RentalController {
   public getByPage = async (req: Request, res: Response) => {
     const { page } = req.query;
     const response = await this.RentalService.getByPage(Number(page) || 1);
+    if (!response.rental.length) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Page not found',
+      });
+    }
     res.status(StatusCodes.OK).json(response);
   };
 }

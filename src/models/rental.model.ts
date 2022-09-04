@@ -1,6 +1,7 @@
 import { Pool } from 'mysql2/promise';
-import GetRentalResponse from '../interfaces/GetRentalResponse.interface';
+import SQLRentalResponse from '../interfaces/SQLRentalResponse';
 import Rental from '../interfaces/Rental.interface';
+import GetRentalResult from '../interfaces/GetRentalResult.interface';
 
 export default class RentalModel {
   public connection: Pool;
@@ -9,7 +10,7 @@ export default class RentalModel {
     this.connection = connection;
   }
 
-  private formatRental(response: GetRentalResponse): Rental {
+  private formatRental(response: SQLRentalResponse): Rental {
     return {
       id: response.id,
       area: response.area,
@@ -40,24 +41,34 @@ export default class RentalModel {
     };
   }
 
-  public async getByPage(page: number): Promise<Rental[]> {
+  public async getByPage(page: number): Promise<GetRentalResult> {
     const OFFSET = (page - 1) * 20;
     const [response] = await this.connection.execute(
       `
-      SELECT re.*, ad.latitude, ad.longitude, ad.zipcode, ad.street, ad.number, ci.name AS city_name, st.name AS state_name, st.short
+      SELECT re.*,
+        ad.latitude,
+        ad.longitude,
+        ad.zipcode,
+        ad.street,
+        ad.number,
+        ci.name AS city_name,
+        st.name AS state_name,
+        st.short,
+        CEILING(COUNT(*) OVER() / 20) AS page_count
       FROM rental AS re
-      INNER JOIN address AS ad
-      ON re.address_id = ad.id
-      INNER JOIN cities AS ci
-      ON ad.city_id = ci.id
-      INNER JOIN states AS st
-      ON ci.state_id = st.id 
+        INNER JOIN address AS ad ON re.address_id = ad.id
+        INNER JOIN cities AS ci ON ad.city_id = ci.id
+        INNER JOIN states AS st ON ci.state_id = st.id
       ORDER BY re.id
-      LIMIT 20 OFFSET ?
+      LIMIT 20 OFFSET ?;
       `,
       [OFFSET.toString()]
     );
 
-    return (response as GetRentalResponse[]).map(this.formatRental);
+    return {
+      page,
+      pageTotal: Number((response as SQLRentalResponse[])[0]?.page_count),
+      rental: (response as SQLRentalResponse[]).map(this.formatRental),
+    };
   }
 }
