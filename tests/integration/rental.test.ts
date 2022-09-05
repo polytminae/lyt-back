@@ -2,17 +2,15 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import sinon from 'sinon';
 import app from '../../src/app';
-import mysql, { RowDataPacket } from 'mysql2/promise';
-import { Pool } from 'mysql2/promise';
 import connection from '../../src/models/connection';
 
 chai.use(chaiHttp);
 
-describe('Testa o método GET em /rental', () => {
-  afterEach(() => {
-    sinon.restore();
-  });
+afterEach(() => {
+  sinon.restore();
+});
 
+describe('Testa o método GET em /rental', () => {
   it('Caso uma página não seja passada, deve retornar a primeira página de resultados', async () => {
     sinon
       .stub(connection, 'execute')
@@ -24,5 +22,16 @@ describe('Testa o método GET em /rental', () => {
     expect(response.body).to.deep.equal(
       require('../mocks/firstRentalPageResult.json')
     );
+  });
+
+  it('Caso a página não seja encontrada deve retornar uma mensagem com status 404', async () => {
+    sinon.stub(connection, 'execute').resolves(JSON.parse('[[]]'));
+
+    const response = await chai.request(app).get('/rental?page=150');
+
+    expect(response.status).to.equal(404);
+    expect(response.body).to.deep.equal({
+      message: 'Page not found',
+    });
   });
 });
