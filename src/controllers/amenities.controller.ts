@@ -14,4 +14,9 @@ export default class AmenitiesController {
     const response = await this.service.getByRentalId(rentalId);
     res.status(StatusCodes.OK).json(response);
   };
+
+  public getAll = async (req: Request, res: Response) => {
+    const response = await this.service.getAll();
+    res.status(StatusCodes.OK).json(response);
+  };
 }

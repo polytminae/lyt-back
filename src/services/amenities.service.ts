@@ -13,4 +13,9 @@ export default class AmenitiesService {
     const amenities = await this.model.getByRentalId(rental_id);
     return amenities;
   }
+
+  public async getAll(): Promise<Amenity[]> {
+    const amenities = await this.model.getAll();
+    return amenities;
+  }
 }

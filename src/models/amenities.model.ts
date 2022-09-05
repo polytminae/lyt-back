@@ -23,4 +23,16 @@ export default class AmenitiesModel {
     );
     return response as Amenity[];
   }
+
+  public async getAll(): Promise<Amenity[]> {
+    const [response] = await this.connection.execute(
+      `
+      SELECT am.id,
+        am.name,
+        cat.name AS category
+      FROM amenities AS am
+        INNER JOIN categories AS cat ON am.category_id = cat.id;`
+    );
+    return response as Amenity[];
+  }
 }
