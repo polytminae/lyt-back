@@ -9,9 +9,17 @@ export default class RentalController {
     this.service = new RentalService();
   }
 
-  public getByPage = async (req: Request, res: Response) => {
-    const { page } = req.query;
-    const response = await this.service.getByPage(Number(page) || 1);
+  public getRental = async (req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const { numerics } = req.body;
+    let response;
+
+    if (numerics) {
+      response = await this.service.getByNumerics(page, numerics);
+    } else {
+      response = await this.service.getByPage(page);
+    }
+
     if (!response.rental.length) {
       return res.status(StatusCodes.NOT_FOUND).json({
         message: 'Page not found',

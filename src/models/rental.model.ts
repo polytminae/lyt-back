@@ -2,6 +2,7 @@ import { Pool } from 'mysql2/promise';
 import SQLRentalResponse from '../interfaces/SQLRentalResponse';
 import Rental from '../interfaces/Rental.interface';
 import GetRentalResult from '../interfaces/GetRentalResult.interface';
+import RentalNumericFilters from '../interfaces/RentalNumericFilters.interface';
 
 export default class RentalModel {
   public connection: Pool;
@@ -63,6 +64,55 @@ export default class RentalModel {
       LIMIT 20 OFFSET ?;
       `,
       [OFFSET.toString()]
+    );
+
+    return {
+      page,
+      pageTotal: Number((response as SQLRentalResponse[])[0]?.page_count),
+      rental: (response as SQLRentalResponse[]).map(this.formatRental),
+    };
+  }
+
+  public async getByNumerics(
+    page: number,
+    numerics: RentalNumericFilters
+  ): Promise<GetRentalResult> {
+    const OFFSET = (page - 1) * 20;
+    const params = [
+      numerics.price.min || '0',
+      numerics.price.max || '~0',
+      numerics.area.min || '0',
+      numerics.area.max || '~0',
+      numerics.bathrooms || '0',
+      numerics.bedrooms || '0',
+      numerics.parking || '0',
+      OFFSET,
+    ];
+
+    const [response] = await this.connection.execute(
+      `
+      SELECT re.*,
+        ad.latitude,
+        ad.longitude,
+        ad.zipcode,
+        ad.street,
+        ad.number,
+        ci.name AS city_name,
+        st.name AS state_name,
+        st.short,
+        CEILING(COUNT(*) OVER() / 20) AS page_count
+      FROM rental AS re
+        INNER JOIN address AS ad ON re.address_id = ad.id
+        INNER JOIN cities AS ci ON ad.city_id = ci.id
+        INNER JOIN states AS st ON ci.state_id = st.id
+      WHERE re.rent BETWEEN ${params[0]} AND ${params[1]}
+        AND re.area BETWEEN ${params[2]} AND ${params[3]}
+        AND re.bathrooms ${numerics.bathrooms < 4 ? '=' : '>='} ${params[4]}
+        AND re.rooms ${numerics.bedrooms < 4 ? '=' : '>='} ${params[5]}
+        AND re.parking_spaces ${numerics.parking < 4 ? '=' : '>='} ${params[6]}
+      ORDER BY re.id
+      LIMIT 20 OFFSET ${params[7]};
+      `
     );
 
     return {
