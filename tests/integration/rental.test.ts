@@ -3,6 +3,7 @@ import chaiHttp from 'chai-http';
 import sinon from 'sinon';
 import app from '../../src/app';
 import connection from '../../src/models/connection';
+import checkQuery from '../util/checkQuery';
 
 chai.use(chaiHttp);
 
@@ -12,11 +13,17 @@ afterEach(() => {
 
 describe('Testa o método GET em /rental', () => {
   it('Caso uma página não seja passada, deve retornar a primeira página de resultados', async () => {
-    sinon
+    const stub = sinon
       .stub(connection, 'execute')
       .resolves(require('../mocks/firstRentalPageSQLResponse.json'));
 
     const response = await chai.request(app).get('/rental');
+
+    expect(stub.calledOnce).to.be.true;
+
+    const [query, [OFFSET]] = stub.firstCall.args;
+    expect(checkQuery(query, 'get/rental')).to.be.ok;
+    expect(Number(OFFSET)).to.equal(0);
 
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(
@@ -25,9 +32,15 @@ describe('Testa o método GET em /rental', () => {
   });
 
   it('Caso a página não seja encontrada deve retornar uma mensagem com status 404', async () => {
-    sinon.stub(connection, 'execute').resolves(JSON.parse('[[]]'));
+    const stub = sinon.stub(connection, 'execute').resolves(JSON.parse('[[]]'));
 
     const response = await chai.request(app).get('/rental?page=150');
+
+    expect(stub.calledOnce).to.be.true;
+
+    const [query, [OFFSET]] = stub.firstCall.args;
+    expect(checkQuery(query, 'get/rental')).to.be.ok;
+    expect(Number(OFFSET)).to.equal(149 * 20);
 
     expect(response.status).to.equal(404);
     expect(response.body).to.deep.equal({
