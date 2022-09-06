@@ -42,20 +42,15 @@ export default class RentalModel {
     };
   }
 
+  private selectFields = `re.*, ad.latitude, ad.longitude,
+  ad.zipcode, ad.street, ad.number, ci.name AS city_name,
+  st.name AS state_name, st.short, CEILING(COUNT(*) OVER() / 20) AS page_count`;
+
   public async getByPage(page: number): Promise<GetRentalResult> {
     const OFFSET = (page - 1) * 20;
     const [response] = await this.connection.execute(
       `
-      SELECT re.*,
-        ad.latitude,
-        ad.longitude,
-        ad.zipcode,
-        ad.street,
-        ad.number,
-        ci.name AS city_name,
-        st.name AS state_name,
-        st.short,
-        CEILING(COUNT(*) OVER() / 20) AS page_count
+      SELECT ${this.selectFields}
       FROM rental AS re
         INNER JOIN address AS ad ON re.address_id = ad.id
         INNER JOIN cities AS ci ON ad.city_id = ci.id
@@ -91,16 +86,7 @@ export default class RentalModel {
 
     const [response] = await this.connection.execute(
       `
-      SELECT re.*,
-        ad.latitude,
-        ad.longitude,
-        ad.zipcode,
-        ad.street,
-        ad.number,
-        ci.name AS city_name,
-        st.name AS state_name,
-        st.short,
-        CEILING(COUNT(*) OVER() / 20) AS page_count
+      SELECT ${this.selectFields}
       FROM rental AS re
         INNER JOIN address AS ad ON re.address_id = ad.id
         INNER JOIN cities AS ci ON ad.city_id = ci.id
@@ -129,16 +115,7 @@ export default class RentalModel {
     const OFFSET = (page - 1) * 20;
     const [response] = await this.connection.execute(
       `
-      SELECT re.*,
-        ad.latitude,
-        ad.longitude,
-        ad.zipcode,
-        ad.street,
-        ad.number,
-        ci.name AS city_name,
-        st.name AS state_name,
-        st.short,
-        CEILING(COUNT(*) OVER() / 20) AS page_count
+      SELECT ${this.selectFields}
       FROM rental AS re
         INNER JOIN amenities_rental AS am_re ON re.id = am_re.rental_id
         INNER JOIN address AS ad ON re.address_id = ad.id
