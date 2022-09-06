@@ -121,4 +121,42 @@ export default class RentalModel {
       rental: (response as SQLRentalResponse[]).map(this.formatRental),
     };
   }
+
+  public async getByAmenities(
+    page: number,
+    amenities: string[]
+  ): Promise<GetRentalResult> {
+    const OFFSET = (page - 1) * 20;
+    const [response] = await this.connection.execute(
+      `
+      SELECT re.*,
+        ad.latitude,
+        ad.longitude,
+        ad.zipcode,
+        ad.street,
+        ad.number,
+        ci.name AS city_name,
+        st.name AS state_name,
+        st.short,
+        CEILING(COUNT(*) OVER() / 20) AS page_count
+      FROM rental AS re
+        INNER JOIN amenities_rental AS am_re ON re.id = am_re.rental_id
+        INNER JOIN address AS ad ON re.address_id = ad.id
+        INNER JOIN cities AS ci ON ad.city_id = ci.id
+        INNER JOIN states AS st ON ci.state_id = st.id
+      WHERE am_re.amenity_id IN (${Array(amenities.length).fill('?').join()})
+      GROUP BY re.id
+      HAVING COUNT(am_re.amenity_id) = ${amenities.length}
+      ORDER BY re.id
+      LIMIT 20 OFFSET ?
+      `,
+      [...amenities, String(OFFSET)]
+    );
+
+    return {
+      page,
+      pageTotal: Number((response as SQLRentalResponse[])[0]?.page_count),
+      rental: (response as SQLRentalResponse[]).map(this.formatRental),
+    };
+  }
 }

@@ -22,4 +22,12 @@ export default class RentalService {
     const rental = await this.model.getByNumerics(page, numerics);
     return rental;
   }
+
+  public async getByAmenities(
+    page: number,
+    amenities: string[]
+  ): Promise<GetRentalResult> {
+    const rental = await this.model.getByAmenities(page, amenities);
+    return rental;
+  }
 }

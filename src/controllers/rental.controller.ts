@@ -11,10 +11,12 @@ export default class RentalController {
 
   public getRental = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
-    const { numerics } = req.body;
+    const { numerics, amenities } = req.body;
     let response;
 
-    if (numerics) {
+    if (amenities) {
+      response = await this.service.getByAmenities(page, amenities);
+    } else if (numerics) {
       response = await this.service.getByNumerics(page, numerics);
     } else {
       response = await this.service.getByPage(page);
