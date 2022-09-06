@@ -46,6 +46,12 @@ export default class RentalModel {
   ad.zipcode, ad.street, ad.number, ci.name AS city_name,
   st.name AS state_name, st.short, CEILING(COUNT(*) OVER() / 20) AS page_count`;
 
+  private formatResponse = (page: number, response: SQLRentalResponse[]) => ({
+    page,
+    pageTotal: Number(response[0]?.page_count),
+    rental: response.map(this.formatRental),
+  });
+
   public async getByPage(page: number): Promise<GetRentalResult> {
     const OFFSET = (page - 1) * 20;
     const [response] = await this.connection.execute(
@@ -61,11 +67,7 @@ export default class RentalModel {
       [OFFSET.toString()]
     );
 
-    return {
-      page,
-      pageTotal: Number((response as SQLRentalResponse[])[0]?.page_count),
-      rental: (response as SQLRentalResponse[]).map(this.formatRental),
-    };
+    return this.formatResponse(page, response as SQLRentalResponse[]);
   }
 
   public async getByNumerics(
@@ -101,11 +103,7 @@ export default class RentalModel {
       `
     );
 
-    return {
-      page,
-      pageTotal: Number((response as SQLRentalResponse[])[0]?.page_count),
-      rental: (response as SQLRentalResponse[]).map(this.formatRental),
-    };
+    return this.formatResponse(page, response as SQLRentalResponse[]);
   }
 
   public async getByAmenities(
@@ -130,10 +128,6 @@ export default class RentalModel {
       [...amenities, String(OFFSET)]
     );
 
-    return {
-      page,
-      pageTotal: Number((response as SQLRentalResponse[])[0]?.page_count),
-      rental: (response as SQLRentalResponse[]).map(this.formatRental),
-    };
+    return this.formatResponse(page, response as SQLRentalResponse[]);
   }
 }
