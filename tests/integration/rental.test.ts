@@ -47,4 +47,24 @@ describe('Testa o método GET em /rental', () => {
       message: 'Page not found',
     });
   });
+
+  it('Deve ser capaz de lidar com um filtro numérico', async () => {
+    const stub = sinon
+      .stub(connection, 'execute')
+      .resolves(require('../mocks/rentalByNumericsSQLResponse.json'));
+
+    const response = await chai
+      .request(app)
+      .get('/rental?priceMax=1500&minPrice=1000&bedrooms=2');
+
+    expect(stub.calledOnce).to.be.true;
+
+    const [query] = stub.firstCall.args;
+    expect(checkQuery(query, 'get/rental?numerics'));
+
+    expect(response.status).to.equal(200);
+    expect(response.body).to.deep.equal(
+      require('../mocks/rentalByNumericsResult.json')
+    );
+  });
 });

@@ -9,7 +9,7 @@
     "build": "tsc",
     "test": "mocha --require ts-node/register ./tests/**/*.test.ts",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
-    "test-coverage": "nyc report"
+    "test-coverage": "nyc npm test"
   },
   "keywords": [],
   "author": "",
