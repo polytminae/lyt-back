@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 describe('Testa o método GET em /rental', () => {
-  it('Caso uma página não seja passada, deve retornar a primeira página de resultados', async () => {
+  it('Deve retornar a primeira página de resultados e usar a query correta', async () => {
     const stub = sinon
       .stub(connection, 'execute')
       .resolves(require('../mocks/firstRentalPageSQLResponse.json'));
@@ -31,7 +31,7 @@ describe('Testa o método GET em /rental', () => {
     );
   });
 
-  it('Caso a página não seja encontrada deve retornar uma mensagem com status 404', async () => {
+  it('Deve retornar um erro caso a query retorne um array vazio', async () => {
     const stub = sinon.stub(connection, 'execute').resolves(JSON.parse('[[]]'));
 
     const response = await chai.request(app).get('/rental?page=150');
@@ -48,7 +48,7 @@ describe('Testa o método GET em /rental', () => {
     });
   });
 
-  it('Deve ser capaz de lidar com um filtro numérico', async () => {
+  it('Deve retornar apartamentos filtrados por valores numéricos e executar a query correta', async () => {
     const stub = sinon
       .stub(connection, 'execute')
       .resolves(require('../mocks/rentalByNumericsSQLResponse.json'));
@@ -60,11 +60,30 @@ describe('Testa o método GET em /rental', () => {
     expect(stub.calledOnce).to.be.true;
 
     const [query] = stub.firstCall.args;
-    expect(checkQuery(query, 'get/rental?numerics'));
+    expect(checkQuery(query, 'get/rental?numerics')).to.be.ok;
 
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(
       require('../mocks/rentalByNumericsResult.json')
+    );
+  });
+
+  it('Deve retornar apartamentos filtrados por serviços e executar a query correta', async () => {
+    const stub = sinon
+      .stub(connection, 'execute')
+      .resolves(require('../mocks/rentalByAmenitiesSQLResponse.json'));
+
+    const response = await chai.request(app).get('/rental?am=5,6,9,13');
+
+    expect(stub.calledOnce).to.be.true;
+
+    const [query, params] = stub.firstCall.args;
+    expect(checkQuery(query, 'get/rental?amenities')).to.be.ok;
+    expect(params).to.deep.equal(['5', '6', '9', '13', '0']);
+
+    expect(response.status).to.equal(200);
+    expect(response.body).to.deep.equal(
+      require('../mocks/rentalByAmenitiesResult.json')
     );
   });
 });

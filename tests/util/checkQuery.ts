@@ -8,7 +8,7 @@ export default function checkQuery(query: QueryOptions, path: string) {
       expected
         .replace(/[*()]/g, '\\$&')
         .replace(/\s/g, '\\s*')
-        .replace('?', '\\S+')
+        .replaceAll('?', '\\S+')
     )
   );
 }
