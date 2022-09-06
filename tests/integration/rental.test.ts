@@ -68,6 +68,15 @@ describe('Testa o método GET em /rental', () => {
     );
   });
 
+  it('Caso um filtro por serviços inválido seja passado deve retornar erro', async () => {
+    const response = await chai.request(app).get('/rental?am=lorem,4,9');
+
+    expect(response.status).to.equal(400);
+    expect(response.body).to.deep.equal({
+      message: 'Invalid "am" field',
+    });
+  });
+
   it('Deve retornar apartamentos filtrados por serviços e executar a query correta', async () => {
     const stub = sinon
       .stub(connection, 'execute')
