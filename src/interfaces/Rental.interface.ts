@@ -3,7 +3,7 @@ import Address from './Address.interface';
 interface Rental {
   id: number;
   area: number;
-  rooms: number;
+  bedrooms: number;
   bathrooms: number;
   parking: number;
   floor: number;

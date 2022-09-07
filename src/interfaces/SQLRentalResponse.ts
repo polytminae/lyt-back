@@ -1,9 +1,9 @@
 interface SQLRentalResponse {
   id: number;
   area: number;
-  rooms: number;
+  bedrooms: number;
   bathrooms: number;
-  parking_spaces: number;
+  parking: number;
   floor: number;
   animal: number;
   furnished: number;
