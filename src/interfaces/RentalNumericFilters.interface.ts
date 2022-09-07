@@ -1,14 +1,10 @@
-interface NumericFilter {
+export interface MinMaxFilter {
   min: number;
   max: number;
 }
 
 interface RentalNumericFilters {
-  price: NumericFilter;
-  area: NumericFilter;
-  bedrooms: number;
-  bathrooms: number;
-  parking: number;
+  [key: string]: number | MinMaxFilter;
 }
 
 export default RentalNumericFilters;
