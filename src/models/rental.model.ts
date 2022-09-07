@@ -57,6 +57,33 @@ export default class RentalModel {
     rental: response.map(this.formatRental),
   });
 
+  private buildFilters(
+    numerics: RentalNumericFilters,
+    amenities: string[]
+  ): string {
+    const filters = [];
+
+    if (amenities.length > 0)
+      filters.push(
+        `am_re.amenity_id IN (${Array(amenities.length).fill('?').join()})`
+      );
+
+    let key: keyof typeof numerics;
+    for (key in numerics) {
+      const filter = numerics[key];
+
+      if (typeof filter === 'object') {
+        filters.push(
+          `re.${key} BETWEEN ${filter.min || '0'} AND ${filter.max || '~0'}`
+        );
+      } else {
+        filters.push(`re.${key} ${filter < 4 ? '=' : '>='} ${filter || '0'}`);
+      }
+    }
+
+    return filters.join(' AND ');
+  }
+
   public async getByPage(page: number): Promise<GetRentalResult> {
     const OFFSET = (page - 1) * 20;
     const [response] = await this.connection.execute(
