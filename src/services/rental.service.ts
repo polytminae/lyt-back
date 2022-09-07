@@ -30,4 +30,17 @@ export default class RentalService {
     const rental = await this.model.getByAmenities(page, amenities);
     return rental;
   }
+
+  public async getByNumericsAndAmenities(
+    page: number,
+    numerics: RentalNumericFilters,
+    amenities: string[]
+  ): Promise<GetRentalResult> {
+    const rental = await this.model.getByNumericsAndAmenities(
+      page,
+      numerics,
+      amenities
+    );
+    return rental;
+  }
 }

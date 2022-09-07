@@ -14,7 +14,13 @@ export default class RentalController {
     const { numerics, amenities } = req.body;
     let response;
 
-    if (amenities) {
+    if (amenities && numerics) {
+      response = await this.service.getByNumericsAndAmenities(
+        page,
+        numerics,
+        amenities
+      );
+    } else if (amenities) {
       response = await this.service.getByAmenities(page, amenities);
     } else if (numerics) {
       response = await this.service.getByNumerics(page, numerics);
