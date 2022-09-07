@@ -10,37 +10,12 @@ export default class RentalService {
     this.model = new RentalModel(connection);
   }
 
-  public async getByPage(page: number): Promise<GetRentalResult> {
-    const rental = await this.model.getByPage(page);
-    return rental;
-  }
-
-  public async getByNumerics(
-    page: number,
-    numerics: RentalNumericFilters
-  ): Promise<GetRentalResult> {
-    const rental = await this.model.getByNumerics(page, numerics);
-    return rental;
-  }
-
-  public async getByAmenities(
-    page: number,
-    amenities: string[]
-  ): Promise<GetRentalResult> {
-    const rental = await this.model.getByAmenities(page, amenities);
-    return rental;
-  }
-
-  public async getByNumericsAndAmenities(
+  public async getByPage(
     page: number,
     numerics: RentalNumericFilters,
     amenities: string[]
   ): Promise<GetRentalResult> {
-    const rental = await this.model.getByNumericsAndAmenities(
-      page,
-      numerics,
-      amenities
-    );
-    return rental;
+    const response = await this.model.getByPage(page, numerics, amenities);
+    return response;
   }
 }

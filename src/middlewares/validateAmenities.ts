@@ -17,6 +17,8 @@ export default function validateAmenities(
       });
     }
     req.body.amenities = amenities;
+  } else {
+    req.body.amenities = [];
   }
 
   next();
