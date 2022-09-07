@@ -42,9 +42,14 @@ export default class RentalModel {
     };
   }
 
-  private selectFields = `re.*, ad.latitude, ad.longitude,
-  ad.zipcode, ad.street, ad.number, ci.name AS city_name,
-  st.name AS state_name, st.short, CEILING(COUNT(*) OVER() / 20) AS page_count`;
+  private selectFields = [
+    're.*',
+    'ad.*',
+    'ci.name AS city_name',
+    'st.name AS state_name',
+    'st.short',
+    'CEILING(COUNT(*) OVER() / 20) AS page_count',
+  ];
 
   private formatResponse = (page: number, response: SQLRentalResponse[]) => ({
     page,
