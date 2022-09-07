@@ -17,7 +17,7 @@ export default class RentalModel {
       area: response.area,
       rooms: response.rooms,
       bathrooms: response.bathrooms,
-      parking_spaces: response.parking_spaces,
+      parking: response.parking_spaces,
       floor: response.floor,
       animal: Boolean(response.animal),
       furnished: Boolean(response.furnished),

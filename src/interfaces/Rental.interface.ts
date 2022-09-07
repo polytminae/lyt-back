@@ -5,7 +5,7 @@ interface Rental {
   area: number;
   rooms: number;
   bathrooms: number;
-  parking_spaces: number;
+  parking: number;
   floor: number;
   animal: boolean;
   furnished: boolean;
