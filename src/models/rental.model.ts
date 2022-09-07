@@ -83,7 +83,6 @@ export default class RentalModel {
       numerics.bathrooms || '0',
       numerics.bedrooms || '0',
       numerics.parking || '0',
-      OFFSET,
     ];
 
     const [response] = await this.connection.execute(
@@ -99,8 +98,9 @@ export default class RentalModel {
         AND re.rooms ${numerics.bedrooms < 4 ? '=' : '>='} ${params[5]}
         AND re.parking_spaces ${numerics.parking < 4 ? '=' : '>='} ${params[6]}
       ORDER BY re.id
-      LIMIT 20 OFFSET ${params[7]};
-      `
+      LIMIT 20 OFFSET ?
+      `,
+      [String(OFFSET)]
     );
 
     return this.formatResponse(page, response as SQLRentalResponse[]);
@@ -122,6 +122,47 @@ export default class RentalModel {
       WHERE am_re.amenity_id IN (${Array(amenities.length).fill('?').join()})
       GROUP BY re.id
       HAVING COUNT(am_re.amenity_id) = ${amenities.length}
+      ORDER BY re.id
+      LIMIT 20 OFFSET ?
+      `,
+      [...amenities, String(OFFSET)]
+    );
+
+    return this.formatResponse(page, response as SQLRentalResponse[]);
+  }
+
+  public async getByNumericsAndAmenities(
+    page: number,
+    numerics: RentalNumericFilters,
+    amenities: string[]
+  ): Promise<GetRentalResult> {
+    const OFFSET = (page - 1) * 20;
+    const params = [
+      numerics.price.min || '0',
+      numerics.price.max || '~0',
+      numerics.area.min || '0',
+      numerics.area.max || '~0',
+      numerics.bathrooms || '0',
+      numerics.bedrooms || '0',
+      numerics.parking || '0',
+    ];
+
+    const [response] = await this.connection.execute(
+      `
+      SELECT ${this.selectFields}
+      FROM rental AS re
+        INNER JOIN amenities_rental AS am_re ON re.id = am_re.rental_id
+        INNER JOIN address AS ad ON re.address_id = ad.id
+        INNER JOIN cities AS ci ON ad.city_id = ci.id
+        INNER JOIN states AS st ON ci.state_id = st.id
+      WHERE am_re.amenity_id IN (${Array(amenities.length).fill('?').join()})
+        AND re.rent BETWEEN ${params[0]} AND ${params[1]}
+        AND re.area BETWEEN ${params[2]} AND ${params[3]}
+        AND re.bathrooms ${numerics.bathrooms < 4 ? '=' : '>='} ${params[4]}
+        AND re.rooms ${numerics.bedrooms < 4 ? '=' : '>='} ${params[5]}
+        AND re.parking_spaces ${numerics.parking < 4 ? '=' : '>='} ${params[6]}
+      GROUP BY re.id
+      HAVING COUNT(am_re.amenity_id) = ${amenities.length}  
       ORDER BY re.id
       LIMIT 20 OFFSET ?
       `,
