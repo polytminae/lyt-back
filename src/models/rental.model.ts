@@ -1,5 +1,5 @@
 import { Pool } from 'mysql2/promise';
-import SQLRentalResponse from '../interfaces/SQLRentalResponse';
+import SQLRentalResponse from '../interfaces/SQLRentalResponse.interface';
 import Rental from '../interfaces/Rental.interface';
 import GetRentalResult from '../interfaces/GetRentalResult.interface';
 import RentalNumericFilters from '../interfaces/RentalNumericFilters.interface';
