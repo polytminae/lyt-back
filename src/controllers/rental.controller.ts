@@ -22,4 +22,24 @@ export default class RentalController {
     }
     res.status(StatusCodes.OK).json(response);
   };
+
+  public getById = async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'Id inválido',
+      });
+    }
+
+    const response = await this.service.getById(id);
+
+    if (!response) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: 'Realty not found',
+      });
+    }
+
+    res.status(StatusCodes.OK).json(response);
+  };
 }

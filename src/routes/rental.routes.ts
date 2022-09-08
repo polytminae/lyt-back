@@ -10,5 +10,6 @@ const controller = new RentalController();
 rentalRouter.use(extractNumericsFromQuery);
 rentalRouter.use(validateArrFilters);
 rentalRouter.get('/', controller.getRental);
+rentalRouter.get('/:id', controller.getById);
 
 export default rentalRouter;

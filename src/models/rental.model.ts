@@ -126,4 +126,18 @@ export default class RentalModel {
     );
     return this.formatResponse(page, response as SQLRentalResponse[]);
   }
+
+  public async getById(id: number): Promise<Rental> {
+    const [response] = await this.connection.execute(
+      `
+      SELECT ${this.selectFields}
+      FROM rental AS re
+        INNER JOIN address AS ad ON re.address_id = ad.id
+        INNER JOIN cities AS ci ON ad.city_id = ci.id
+        INNER JOIN states AS st ON ci.state_id = st.id
+      WHERE re.id = ?`,
+      [id]
+    );
+    return (response as Rental[])[0];
+  }
 }
