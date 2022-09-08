@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import amenitiesRouter from './routes/amenities.routes';
+import citiesRouter from './routes/cities.routes';
 import rentalRouter from './routes/rental.routes';
 
 class App {
@@ -12,6 +13,7 @@ class App {
 
     this.app.use('/rental', rentalRouter);
     this.app.use('/amenities', amenitiesRouter);
+    this.app.use('/cities', citiesRouter);
   }
 }
 
