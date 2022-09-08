@@ -14,13 +14,11 @@ describe('Testa o método GET em /rental', () => {
     const stub = sinon.stub(connection, 'execute').resolves(SQLResponse);
 
     const response = await chai.request(app).get('/rental');
+    const [query, [OFFSET]] = stub.firstCall.args;
 
     expect(stub.calledOnce).to.be.true;
-
-    const [query, [OFFSET]] = stub.firstCall.args;
     expect(query).not.to.include('WHERE');
     expect(Number(OFFSET)).to.equal(0);
-
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(modelOutput);
   });
@@ -29,31 +27,27 @@ describe('Testa o método GET em /rental', () => {
     const stub = sinon.stub(connection, 'execute').resolves(JSON.parse('[[]]'));
 
     const response = await chai.request(app).get('/rental?page=150');
+    const [, [OFFSET]] = stub.firstCall.args;
 
     expect(stub.calledOnce).to.be.true;
-
-    const [, [OFFSET]] = stub.firstCall.args;
     expect(Number(OFFSET)).to.equal(149 * 20);
-
     expect(response.status).to.equal(404);
     expect(response.body).to.deep.equal({
       message: 'Page not found',
     });
   });
 
-  it('Deve retornar apartamentos filtrados por valores numéricos e executar a query correta', async () => {
+  it('Deve retornar apartamentos filtrados por valores numéricos', async () => {
     const stub = sinon.stub(connection, 'execute').resolves(SQLResponse);
 
     const response = await chai
       .request(app)
       .get('/rental?rent[max]=1500&rent[min]=1000&bedrooms=2');
+    const [query] = stub.firstCall.args;
 
     expect(stub.calledOnce).to.be.true;
-
-    const [query] = stub.firstCall.args;
     expect(query).to.include('rent BETWEEN 1000 AND 1500');
     expect(query).to.include('bedrooms = 2');
-
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(modelOutput);
   });
@@ -67,20 +61,17 @@ describe('Testa o método GET em /rental', () => {
     });
   });
 
-  it('Deve retornar apartamentos filtrados por serviços e executar a query correta', async () => {
+  it('Deve retornar apartamentos filtrados por serviços', async () => {
     const stub = sinon.stub(connection, 'execute').resolves(SQLResponse);
 
     const response = await chai.request(app).get('/rental?am=5,6,9,13');
-
-    expect(stub.calledOnce).to.be.true;
-
     const [query, params] = stub.firstCall.args;
 
+    expect(stub.calledOnce).to.be.true;
     expect(query).to.include('amenity_id IN (?,?,?,?)');
     expect(query).to.include('GROUP BY re.id');
     expect(query).to.include('HAVING COUNT(am_re.amenity_id) = 4');
     expect(params).to.deep.equal(['5', '6', '9', '13', '0']);
-
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(modelOutput);
   });

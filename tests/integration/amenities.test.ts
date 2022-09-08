@@ -17,12 +17,10 @@ describe('Testa o método GET em /amenities', () => {
       const stub = sinon.stub(connection, 'execute').resolves(SQLResponse);
 
       const response = await chai.request(app).get('/amenities');
+      const [query] = stub.firstCall.args;
 
       expect(stub.calledOnce).to.be.true;
-
-      const [query] = stub.firstCall.args;
       expect(query).not.to.include('WHERE');
-
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(modelOutput);
     });
@@ -33,13 +31,11 @@ describe('Testa o método GET em /amenities', () => {
       const stub = sinon.stub(connection, 'execute').resolves(SQLResponse);
 
       const response = await chai.request(app).get('/amenities/rental/2');
+      const [query, [id]] = stub.firstCall.args;
 
       expect(stub.calledOnce).to.be.true;
-
-      const [query, [id]] = stub.firstCall.args;
       expect(query).to.include('rental_id = ?');
       expect(Number(id)).to.equal(2);
-
       expect(response.status).to.equal(200);
       expect(response.body).to.deep.equal(modelOutput);
     });

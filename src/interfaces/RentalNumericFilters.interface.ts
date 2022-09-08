@@ -1,6 +1,6 @@
 export interface MinMaxFilter {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
 }
 
 interface RentalNumericFilters {

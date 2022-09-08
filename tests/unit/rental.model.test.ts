@@ -5,12 +5,12 @@ import connection from '../../src/models/connection';
 import RentalModel from '../../src/models/rental.model';
 
 describe('Testes unitários do modelo para acesso da tabela Rental', () => {
-  context('Testa as ternárias da função getByNumerics', () => {
+  context('Testa as ternárias da função buildFilters', () => {
     const model = new RentalModel(connection);
 
     const page = 1;
     const defaultFilters = {
-      price: {
+      rent: {
         max: 1000,
         min: 500,
       },
@@ -30,7 +30,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
 
       const filter: RentalNumericFilters = {
         ...defaultFilters,
-        price: {
+        rent: {
           max: 0,
           min: 500,
         },
@@ -71,6 +71,9 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
 
       const filter: RentalNumericFilters = {
         ...defaultFilters,
+        rent: {
+          max: 200,
+        },
         bedrooms: 2,
         bathrooms: 2,
         parking: 2,
