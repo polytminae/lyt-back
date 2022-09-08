@@ -69,7 +69,7 @@ export default class RentalModel {
     };
     const filters = [];
 
-    Object.keys(arrFilters).forEach((key) => {
+    Object.keys(filterKeyToColumn).forEach((key) => {
       const arr = arrFilters[key as keyof typeof arrFilters];
       if (arr.length > 0) {
         const column = filterKeyToColumn[key as keyof typeof filterKeyToColumn];

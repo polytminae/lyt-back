@@ -75,4 +75,21 @@ describe('Testa o método GET em /rental', () => {
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(modelOutput);
   });
+
+  it('Deve retornar apartamentos filtrados por cidade e estado', async () => {
+    const stub = sinon.stub(connection, 'execute').resolves(SQLResponse);
+
+    const response = await chai
+      .request(app)
+      .get('/rental?state=2,4&city=10,11&am=4');
+    const [query, params] = stub.firstCall.args;
+    console.log(query);
+
+    expect(stub.calledOnce).to.be.true;
+    expect(query).to.include('st.id IN (?,?)');
+    expect(query).to.include('ci.id IN (?,?)');
+    expect(params).to.deep.equal(['4', '2', '4', '10', '11', '0']);
+    expect(response.status).to.equal(200);
+    expect(response.body).to.deep.equal(modelOutput);
+  });
 });
