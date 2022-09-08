@@ -1,4 +1,4 @@
-export const SQLResponse = [
+export const SQLResponse: any = [
   [
     { id: 13, name: 'Ar-condicionado', category: 'Comodidades' },
     { id: 15, name: 'Garagem', category: 'Serviços' },

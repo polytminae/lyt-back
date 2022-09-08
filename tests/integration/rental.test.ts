@@ -4,15 +4,12 @@ import sinon from 'sinon';
 import app from '../../src/app';
 import connection from '../../src/models/connection';
 import { modelOutput, SQLResponse } from '../mocks/rental.model.mock';
-import checkQuery from '../util/checkQuery';
 
 chai.use(chaiHttp);
 
-afterEach(() => {
-  sinon.restore();
-});
+afterEach(sinon.restore);
 
-describe.only('Testa o método GET em /rental', () => {
+describe('Testa o método GET em /rental', () => {
   it('Deve retornar a primeira página de resultados e usar a query correta', async () => {
     const stub = sinon.stub(connection, 'execute').resolves(SQLResponse);
 
@@ -20,9 +17,9 @@ describe.only('Testa o método GET em /rental', () => {
 
     expect(stub.calledOnce).to.be.true;
 
-    // const [query, [OFFSET]] = stub.firstCall.args;
-    // expect(checkQuery(query, 'get/rental')).to.be.ok;
-    // expect(Number(OFFSET)).to.equal(0);
+    const [query, [OFFSET]] = stub.firstCall.args;
+    expect(query).not.to.include('WHERE');
+    expect(Number(OFFSET)).to.equal(0);
 
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(modelOutput);
@@ -35,9 +32,8 @@ describe.only('Testa o método GET em /rental', () => {
 
     expect(stub.calledOnce).to.be.true;
 
-    // const [query, [OFFSET]] = stub.firstCall.args;
-    // expect(checkQuery(query, 'get/rental')).to.be.ok;
-    // expect(Number(OFFSET)).to.equal(149 * 20);
+    const [, [OFFSET]] = stub.firstCall.args;
+    expect(Number(OFFSET)).to.equal(149 * 20);
 
     expect(response.status).to.equal(404);
     expect(response.body).to.deep.equal({
@@ -50,12 +46,13 @@ describe.only('Testa o método GET em /rental', () => {
 
     const response = await chai
       .request(app)
-      .get('/rental?priceMax=1500&minPrice=1000&bedrooms=2');
+      .get('/rental?rent[max]=1500&rent[min]=1000&bedrooms=2');
 
     expect(stub.calledOnce).to.be.true;
 
-    // const [query] = stub.firstCall.args;
-    // expect(checkQuery(query, 'get/rental?numerics')).to.be.ok;
+    const [query] = stub.firstCall.args;
+    expect(query).to.include('rent BETWEEN 1000 AND 1500');
+    expect(query).to.include('bedrooms = 2');
 
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(modelOutput);
@@ -77,9 +74,12 @@ describe.only('Testa o método GET em /rental', () => {
 
     expect(stub.calledOnce).to.be.true;
 
-    // const [query, params] = stub.firstCall.args;
-    // expect(checkQuery(query, 'get/rental?amenities')).to.be.ok;
-    // expect(params).to.deep.equal(['5', '6', '9', '13', '0']);
+    const [query, params] = stub.firstCall.args;
+
+    expect(query).to.include('amenity_id IN (?,?,?,?)');
+    expect(query).to.include('GROUP BY re.id');
+    expect(query).to.include('HAVING COUNT(am_re.amenity_id) = 4');
+    expect(params).to.deep.equal(['5', '6', '9', '13', '0']);
 
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(modelOutput);
