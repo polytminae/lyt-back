@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import amenitiesRouter from './routes/amenities.routes';
 import citiesRouter from './routes/cities.routes';
 import rentalRouter from './routes/rental.routes';
+import statesRouter from './routes/states.routes';
 
 class App {
   public app: express.Application = express();
@@ -14,6 +15,7 @@ class App {
     this.app.use('/rental', rentalRouter);
     this.app.use('/amenities', amenitiesRouter);
     this.app.use('/cities', citiesRouter);
+    this.app.use('/states', statesRouter);
   }
 }
 
