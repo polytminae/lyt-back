@@ -28,7 +28,7 @@ export default class RentalController {
 
     if (Number.isNaN(id)) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Id inválido',
+        message: 'Invalid ID',
       });
     }
 

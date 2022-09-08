@@ -83,7 +83,6 @@ describe('Testa o método GET em /rental', () => {
       .request(app)
       .get('/rental?state=2,4&city=10,11&am=4');
     const [query, params] = stub.firstCall.args;
-    console.log(query);
 
     expect(stub.calledOnce).to.be.true;
     expect(query).to.include('st.id IN (?,?)');
@@ -91,5 +90,44 @@ describe('Testa o método GET em /rental', () => {
     expect(params).to.deep.equal(['4', '2', '4', '10', '11', '0']);
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(modelOutput);
+  });
+});
+
+describe('Testa o método GET em /rental/:id', () => {
+  it('Deve retornar o primeiro resultado', async () => {
+    const stub = sinon.stub(connection, 'execute').resolves(SQLResponse);
+
+    const response = await chai.request(app).get('/rental/456');
+    const [query, [id]] = stub.firstCall.args;
+
+    expect(stub.calledOnce).to.be.true;
+    expect(query).to.include('WHERE re.id = ?');
+    expect(id).to.equal(456);
+    expect(response.status).to.equal(200);
+    expect(response.body).to.deep.equal(modelOutput.rental[0]);
+  });
+
+  it('Caso não encontre nada deve retornar status 404', async () => {
+    const stub = sinon.stub(connection, 'execute').resolves([[]] as any);
+
+    const response = await chai.request(app).get('/rental/5555');
+
+    expect(stub.calledOnce).to.be.true;
+    expect(response.status).to.equal(404);
+    expect(response.body).to.deep.equal({
+      message: 'Realty not found',
+    });
+  });
+
+  it('Caso o id seja inválido deve retornar status 400', async () => {
+    const stub = sinon.stub(connection, 'execute').resolves([[]] as any);
+
+    const response = await chai.request(app).get('/rental/lorem');
+
+    expect(stub.called).to.be.false;
+    expect(response.status).to.equal(400);
+    expect(response.body).to.deep.equal({
+      message: 'Invalid ID',
+    });
   });
 });

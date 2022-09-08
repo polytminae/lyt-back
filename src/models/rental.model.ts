@@ -138,6 +138,6 @@ export default class RentalModel {
       WHERE re.id = ?`,
       [id]
     );
-    return (response as Rental[])[0];
+    return (response as SQLRentalResponse[]).map(this.formatRental)[0];
   }
 }
