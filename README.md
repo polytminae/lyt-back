@@ -43,15 +43,15 @@ Por padrão retorna um array com a primeira página de resultados, ou seja, os p
 
 - `?state=<id>` Ou `?state=<id>,<id>,<id>`
 
-  Filtra imóveis que estejam nos estados específicados
+  Filtra imóveis que estejam em qualquer um dos estados específicados
 
 - `?city=<id>` Ou `?city=<id>,<id>,<id>`
 
-  Filtra imóveis que estejam nas cidades específicadas
+  Filtra imóveis que estejam em qualquer uma das cidades específicadas
 
 - `?am=<id>` Ou `?am=<id>,<id>,<id>`
 
-  Filtra imóveis que ofereçam os serviços específicados
+  Filtra imóveis que ofereçam todos os serviços específicados
 
 </details>
 
@@ -93,6 +93,46 @@ Por padrão retorna um array com a primeira página de resultados, ou seja, os p
     },
     ...
   ]
+}
+```
+
+</details>
+
+- `/rental/:id`
+
+Retorna o imóvel com o id buscado
+
+<details>
+  <summary>Response schema</summary>
+
+```typescript
+{
+  id: number,
+  area: number,
+  bedrooms: number,
+  bathrooms: number,
+  parking: number,
+  floor: number,
+  animal: boolean,
+  furnished: boolean,
+  hoa: number,
+  rent: number,
+  tax: number,
+  fireInsurance: number,
+  address: {
+    id: number,
+    latitude: number,
+    longitude: number,
+    neighborhood: string,
+    zipcode: string,
+    street: string,
+    streetNumber: string,
+    city: string,
+    state: {
+      long: string,
+      short: string,
+    }
+  }
 }
 ```
 
