@@ -40,7 +40,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
         },
       };
 
-      await model.getByNumerics(page, filter);
+      await model.getByPage(page, filter, []);
       const [query] = stub.lastCall.args as string[];
 
       expect(query.match(/~0/g)).to.have.lengthOf(2);
@@ -58,7 +58,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
         parking: 5,
       };
 
-      await model.getByNumerics(page, filter);
+      await model.getByPage(page, filter, []);
       const [query] = stub.lastCall.args as string[];
 
       expect(query.match(/>=/g)).to.have.lengthOf(3);
@@ -76,7 +76,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
         parking: 2,
       };
 
-      await model.getByNumerics(page, filter);
+      await model.getByPage(page, filter, []);
       const [query] = stub.lastCall.args as string[];
 
       expect(query.match(/\s=\s2/g)).to.have.lengthOf(3);
@@ -94,7 +94,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
         parking: NaN,
       };
 
-      await model.getByNumerics(2, filter);
+      await model.getByPage(2, filter, []);
       const [query] = stub.lastCall.args as string[];
 
       expect(query.match(/\s0/g)).to.have.lengthOf(3);

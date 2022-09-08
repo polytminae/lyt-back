@@ -17,11 +17,12 @@ interface SQLRentalResponse {
   neighborhood: string;
   zipcode: string;
   street: string;
-  number: number;
+  number: string;
   city_name: string;
   state_name: string;
   short: string;
-  page_count: number;
+  page_count: string;
+  [key: string]: unknown;
 }
 
 export default SQLRentalResponse;

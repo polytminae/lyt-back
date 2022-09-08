@@ -7,7 +7,7 @@ interface Address {
   neighborhood: string;
   zipcode: string;
   street: string;
-  streetNumber: number;
+  streetNumber: string;
   city: string;
   state: State;
 }
