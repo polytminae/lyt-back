@@ -105,7 +105,11 @@ export default class RentalModel {
       `
       SELECT ${this.selectFields}
       FROM rental AS re
-        INNER JOIN amenities_rental AS am_re ON re.id = am_re.rental_id
+      ${
+        amenities.length > 0
+          ? 'INNER JOIN amenities_rental AS am_re ON re.id = am_re.rental_id'
+          : ''
+      }
         INNER JOIN address AS ad ON re.address_id = ad.id
         INNER JOIN cities AS ci ON ad.city_id = ci.id
         INNER JOIN states AS st ON ci.state_id = st.id
@@ -120,7 +124,6 @@ export default class RentalModel {
       `,
       [...amenities, ...state, ...city, OFFSET.toString()]
     );
-
     return this.formatResponse(page, response as SQLRentalResponse[]);
   }
 }
