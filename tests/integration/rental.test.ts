@@ -57,7 +57,7 @@ describe('Testa o método GET em /rental', () => {
 
     expect(response.status).to.equal(400);
     expect(response.body).to.deep.equal({
-      message: 'Invalid "am" field',
+      message: 'Bad Request',
     });
   });
 

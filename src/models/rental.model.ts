@@ -3,6 +3,7 @@ import SQLRentalResponse from '../interfaces/SQLRentalResponse.interface';
 import Rental from '../interfaces/Rental.interface';
 import GetRentalResult from '../interfaces/GetRentalResult.interface';
 import RentalNumericFilters from '../interfaces/RentalNumericFilters.interface';
+import RentalArrFilters from '../interfaces/RentalArrFilters.interface';
 
 export default class RentalModel {
   public connection: Pool;
@@ -59,14 +60,22 @@ export default class RentalModel {
 
   private buildFilters(
     numerics: RentalNumericFilters,
-    amenities: string[]
+    arrFilters: RentalArrFilters
   ): string {
+    const filterKeyToColumn = {
+      am: 'am_re.amenity_id',
+      state: 'st.id',
+      city: 'ci.id',
+    };
     const filters = [];
 
-    if (amenities.length > 0)
-      filters.push(
-        `am_re.amenity_id IN (${Array(amenities.length).fill('?').join()})`
-      );
+    Object.keys(arrFilters).forEach((key) => {
+      const arr = arrFilters[key as keyof typeof arrFilters];
+      if (arr.length > 0) {
+        const column = filterKeyToColumn[key as keyof typeof filterKeyToColumn];
+        filters.push(`${column} IN (${Array(arr.length).fill('?').join()})`);
+      }
+    });
 
     let key: keyof typeof numerics;
     for (key in numerics) {
@@ -87,10 +96,11 @@ export default class RentalModel {
   public async getByPage(
     page: number,
     numerics: RentalNumericFilters,
-    amenities: string[]
+    arrFilters: RentalArrFilters
   ): Promise<GetRentalResult> {
     const OFFSET = (page - 1) * 20;
-    const filters = this.buildFilters(numerics, amenities);
+    const filters = this.buildFilters(numerics, arrFilters);
+    const { am: amenities, state, city } = arrFilters;
     const [response] = await this.connection.execute(
       `
       SELECT ${this.selectFields}
@@ -108,7 +118,7 @@ export default class RentalModel {
       ORDER BY re.id
       LIMIT 20 OFFSET ?;
       `,
-      [...amenities, OFFSET.toString()]
+      [...amenities, ...state, ...city, OFFSET.toString()]
     );
 
     return this.formatResponse(page, response as SQLRentalResponse[]);

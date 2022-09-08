@@ -11,9 +11,9 @@ export default class RentalController {
 
   public getRental = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
-    const { numerics, amenities } = req.body;
+    const { numerics, arrFilters } = req.body;
 
-    const response = await this.service.getByPage(page, numerics, amenities);
+    const response = await this.service.getByPage(page, numerics, arrFilters);
 
     if (!response.rental.length) {
       return res.status(StatusCodes.NOT_FOUND).json({

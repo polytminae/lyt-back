@@ -22,6 +22,11 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
       bathrooms: 0,
       parking: 0,
     };
+    const arrFilters = {
+      am: [],
+      state: [],
+      city: [],
+    };
 
     it('Deve utilizar ~0 na query quando nenhum valor máximo for passado', async () => {
       const stub = sinon
@@ -40,7 +45,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
         },
       };
 
-      await model.getByPage(page, filter, []);
+      await model.getByPage(page, filter, arrFilters);
       const [query] = stub.lastCall.args as string[];
 
       expect(query.match(/~0/g)).to.have.lengthOf(2);
@@ -58,7 +63,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
         parking: 5,
       };
 
-      await model.getByPage(page, filter, []);
+      await model.getByPage(page, filter, arrFilters);
       const [query] = stub.lastCall.args as string[];
 
       expect(query.match(/>=/g)).to.have.lengthOf(3);
@@ -79,7 +84,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
         parking: 2,
       };
 
-      await model.getByPage(page, filter, []);
+      await model.getByPage(page, filter, arrFilters);
       const [query] = stub.lastCall.args as string[];
 
       expect(query.match(/\s=\s2/g)).to.have.lengthOf(3);
@@ -97,7 +102,7 @@ describe('Testes unitários do modelo para acesso da tabela Rental', () => {
         parking: NaN,
       };
 
-      await model.getByPage(2, filter, []);
+      await model.getByPage(2, filter, arrFilters);
       const [query] = stub.lastCall.args as string[];
 
       expect(query.match(/\s0/g)).to.have.lengthOf(3);
